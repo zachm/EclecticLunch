@@ -1,0 +1,6 @@
+Flask==0.10
+Flask-SQLAlchemy==1.0
+flask_oauth
+Flask-WTF==0.8.4
+ipdb==0.8
+argparse==1.2.1
