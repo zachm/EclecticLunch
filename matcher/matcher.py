@@ -112,9 +112,9 @@ def make_lunch(lunchers):
     Returns a list of LunchGroups.
     """
     # determine number of groups
-    num_lunchers = len(lunchers)
-    lunch_group_sizes = _calc_lunch_group_sizes(num_lunchers)
-    lunch_groups = [LunchGroup(size) for size in lunch_group_sizes]
+    lunch_groups = [LunchGroup(size)
+        for size in _calc_lunch_group_sizes(len(lunchers))
+    ]
 
     # let's do a simple greedy matching
     remaining_groups = lunch_groups.copy()
