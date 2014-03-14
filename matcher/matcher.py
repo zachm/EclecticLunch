@@ -146,25 +146,24 @@ def deliver_lunch(lunch_group, time):
 
 
     message_body = MESSAGE_BODY_FORM.format(
-            lunchers='\n'.join(
-                ['\t* {first} {last} ({yelp_id})'.format(
-                        first=l['first'],
-                        last=l['last'],
-                        yelp_id=l['yelp_id'],
-                    )
-                    for l in lunchers
-                ]
-            ),
-            time=time,
+        lunchers='\n'.join(
+            ['\t* {first} {last} ({yelp_id})'.format(
+                    first=l['first'],
+                    last=l['last'],
+                    yelp_id=l['yelp_id'],
+                )
+                for l in lunchers
+            ]
+        ),
+        time=time,
     )
 
     message = email.mime.text.MIMEText(message_body)
     message['Subject'] = EMAIL_MESSAGE_SUBJECT
-    message['To'] = ','.join([
+    message['To'] = ', '.join([
         '{0}@yelp.com'.format(l['yelp_id']) for l in lunchers
     ])
-    message['From'] = "who_knows@example.com"
-    message['Reply-To'] = 'THIS_IS_MADNESS@leonidas.net'
+    message['From'] = 'EclecticLunch-noreply@yelpcorp.com'
 
     conn = smtplib.SMTP('localhost', 25)
     conn.sendmail(message['From'], message['To'], message.as_string())
