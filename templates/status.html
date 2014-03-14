@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 
+{% autoescape false %}
 {% block body %}
 <div class='wrapper'>
     <img src='{{ photo_url }}' alt='{{ name_str }}' />
@@ -10,3 +11,4 @@
 
 </div>
 {% endblock %}
+{% endautoescape %}

@@ -48,6 +48,21 @@ def get_person_info(username):
     return resp
 
 
+def make_block_user(uinfo):
+    return """<div class='user'>
+        <div style='float:left'><img src='%s' alt='%s' /></div>
+        <div>%s %s (%s)</div>
+        </div>""" % (uinfo['photo_url'], uinfo['yelp_id'],
+                   uinfo['first'], uinfo['last'], uinfo['yelp_id'])
+
+
+@app.route("/start/<user>")
+def start(user):
+    info = get_person_info(user)
+    me_html = make_block_user(info)
+    return render_template('start.html', me_html=me_html)
+
+
 @app.route("/status/<user>")
 def status(user):
     info = get_person_info(user)

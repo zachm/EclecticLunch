@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% autoescape false %}
+{% block body %}
+<div class='wrapper'>
+    <h2>Welcome!</h2>
+    {{ me_html }}
+    <br/><br/>
+    <h3>When are you Down to Lunch?</h3>
+    <form action='/status' method='get' id='startForm'>
+        <label>Early (11 a.m.)</label> <input type='radio' name='time' value='11' />
+        <label>Standard (12 p.m.)</label> <input type='radio' name='time' value='12' />
+        <label>Late (1 p.m.)</label> <input type='radio' name='time' value='13' />
+        <label>Super Late (2 p.m.)</label> <input type='radio' name='time' value='14' />
+        <input id='submit' type='submit' value='Lunch me, bro!' />
+    </form>
+    <br/><br/>
+
+</div>
+{% endblock %}
+{% endautoescape %}
