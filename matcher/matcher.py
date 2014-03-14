@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+
+
+DESIRED_GROUP_SIZE = 4
+
+
+num_users_to_group_sizes = {
+    2: (2),
+    3: (3),
+    5: (3, 2),
+    6: (3, 3),
+    7: (4, 3),
+    9: (3, 3, 3),
+    10: (5, 5),
+}
+
+
+def _calc_lunch_group_sizes(num_users):
+    """Calculates the number of different lunch groups based on the number of
+    people looking for lunch and the `DESIRED_GROUP_SIZE`.
+    """
+    full_groups = num_users / DESIRED_GROUP_SIZE
+    remainder = num_users % DESIRED_GROUP_SIZE
+
+    if num_users in num_users_to_group_sizes:
+        return num_users_to_group_sizes[num_users]
+
+    groups  = [DESIRED_GROUP_SIZE] * full_groups
+
+    if remainder == 0:
+        return groups
+
+    if remainder == 3:
+        return groups.append(3)
+
+    # if remainder is 1 or 2, sprinkle on the first two groups
+    if remainder == 2:
+        groups[1] += 1
+
+    groups[0] += 1
+    return groups
+
+
+def make_lunch(users):
+    """Takes a list of user objects and attempts to assign them to lunch groups
+    of approximately `DESIRED_GROUP_SIZE`.
+
+    The groups are created by minimizing the number of people in each group who
+    have had lunch together before and maximizing the desk location distance.
+
+    Returns a list of lists, where each sublist is a group of people who should
+    have lunch together.
+    """
+    # determine number of groups
+    num_lunchers = len(users)
+    groups = _calc_lunch_group_sizes(num_lunchers)
+
+
+    # do matching
+
+
+def deliver_lunch(lunch_group):
+    """Takes a group of users and emails them that lunch is ready!"""
+    pass
