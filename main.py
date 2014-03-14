@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-import argparse
 import datetime
-import json
-import urllib2
 
 from flask import Flask
 from flask import render_template
