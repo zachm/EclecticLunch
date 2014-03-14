@@ -46,7 +46,7 @@ wireer = Wireer()
 class InvalidLogin(Exception):
     pass
 
-def get_curent_user_info(access_token):
+def get_curent_user_info___(access_token):
     try:
         res = urlopen(
             Request(
@@ -63,7 +63,7 @@ def get_curent_user_info(access_token):
     return json.loads(res.read())
 
 @wireer.route('/debug/auth')
-def index():
+def debug_auth():
     access_token, __ = session.get('access_token', (None, None,))
     if access_token is None:
         return """
@@ -73,7 +73,7 @@ def index():
         )
 
     try:
-        info = get_curent_user_info(access_token)
+        info = get_curent_user_info___(access_token)
     except URLError as e:
             return """
                 Your login seems borked. <a href="{login_url}">Login</a><br/>
@@ -137,7 +137,7 @@ def get_or_create_user_by_nick(google_dict):
     email = google_dict['email']
 
     user = models.User.query.filter_by(email=email).first()
-    if user:
+    if user is not None:
         return user
 
     nick = email.split('@')[0]
@@ -149,10 +149,11 @@ def get_or_create_user_by_nick(google_dict):
             lukas_dict['first'],
             lukas_dict['last'],
         ]),
+        email=email,
         pic_url=lukas_dict['photo_url'],
     )
     models.db.session.add(user)
-    models.db.commit()
+    models.db.session.commit()
 
     return user
 
@@ -162,11 +163,12 @@ def get_or_create_user_by_nick(google_dict):
 def authorized(resp):
     session['access_token'] = resp['access_token'], ''
 
-    session['user_id'] = get_or_create_user_by_nick(
-        get_curent_user_info(resp['access_token']),
+    user = get_or_create_user_by_nick(
+        get_curent_user_info___(resp['access_token']),
     ).id
+    session['user_id'] = user.id
 
-    return redirect(session.pop('after_auth', None) or url_for('index'))
+    return redirect(session.pop('after_auth', None) or '/start/'+user['nick'])
 
 
 @google.tokengetter

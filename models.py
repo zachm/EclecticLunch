@@ -21,7 +21,8 @@ class User(db.Model, NiceRepr):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120), unique=True)
-    pic_url = db.Column(db.String(120), unique=True)
+    full_name = db.Column(db.Text)
+    pic_url = db.Column(db.Text)
 
 
 class LunchTime(db.Model, NiceRepr):
