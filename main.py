@@ -44,12 +44,7 @@ lunch_buckets = {
 }
 
 
-lunch_matchings = {
-    11: None,
-    12: None,
-    13: None,
-    14: None,
-}
+lunch_matchings = {}
 
 
 @app.route("/")
@@ -120,9 +115,18 @@ def start(user):
     return render_template('start.html', me_html=me_html, username=info['yelp_id'])
 
 
+@app.route("/match/<user>")
+def match(user):
+    from matcher import matcher
+    for x in lunch_buckets.keys():
+        matcher.run_matchings(x)
+    return redirect("/status/"+user) 
+
 def get_luncheon_group(username):
     for lunch_group in lunch_matchings.values():
+        print lunch_group
         if username in lunch_group.get_lunchers():
+            print "success!"
             return lunch_group.get_lunchers()
 
 
