@@ -6,6 +6,7 @@ import urllib2
 
 from flask import Flask
 from flask import render_template
+from flask import request
 from flask.ext.script import Manager, Server
 import staticconf
 
@@ -50,7 +51,10 @@ def get_person_info(username):
     request_url = "http://lukas.dev.yelp.com:7777/yelployees?yelp_id="
     req = urllib2.urlopen(request_url + username)
     resp = json.loads(req.read())[0]
-    resp['photo_url'] = resp['photo_urls'][0]
+    if len(resp['photo_urls']) == 0:
+        resp['photo_url'] = 'http://wwcfdc.com/new/wp-content/uploads/2012/07/facebook-no-image11.gif'
+    else:
+        resp['photo_url'] = resp['photo_urls'][0]
     del resp['photo_urls']
     return resp
 
@@ -62,12 +66,38 @@ def make_block_user(uinfo):
         </div>""" % (uinfo['photo_url'], uinfo['yelp_id'],
                    uinfo['first'], uinfo['last'], uinfo['yelp_id'])
 
+@app.route("/submit/<user>")
+def submit(user):
+    if len(request.args.getlist("time")) != 1:
+        return "Please specify time!"
+    time = int(request.args.getlist("time")[0])
+    if time not in [11,12,13,14]:
+        return "Valid times are 11,12,13,14!"
+    
+    uinfo = get_person_info(user)
+    # TODO add user, etc. here
+    message = "You've been booked for a lunch with new friends!<br/>"
+    message += "Please meet at "
+    
+    companions = "Your companions will be selected and revealed fifteen minutes before lunch!"
+    return user + "\n" + str(time)
+
+
 
 @app.route("/start/<user>")
 def start(user):
     info = get_person_info(user)
     me_html = make_block_user(info)
-    return render_template('start.html', me_html=me_html)
+    return render_template('start.html', me_html=me_html, username=info['yelp_id'])
+
+
+
+def get_luncheon_group(username):
+    # TODO
+    return [get_person_info('jschultz'), get_person_info('pkoch'), get_person_info('ztm'), get_person_info('plucas')]
+
+def get_user_reservation(username):
+    return datetime.datetime.now()
 
 
 @app.route("/status/<user>")
@@ -80,7 +110,7 @@ def status(user):
     matched = True
     message = ""
     if approved:
-        dt = datetime.datetime.now()
+        dt = get_user_reservation(user)
         message += "%s has been booked for a lunch with new friends, %s at %s. " % (info['first'],
                     dt.strftime("%A"), dt.strftime("%I:%m %p"))
         message += "Please meet five minutes before this time in the Yelp lobby. "
@@ -94,7 +124,7 @@ def status(user):
 
     return render_template("status.html",
                            message=message, companions=companions, name_str=name_str,
-                           photo_url=info['photo_url']
+                           us_html=" ".join([make_block_user(x) for x in get_luncheon_group(user)])
                             )
 
 

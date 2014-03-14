@@ -1,4 +1,21 @@
 
+
+    .user {
+        border: 5px solid #C41200;
+        height: 160px;
+        padding: 5px;
+        margin: 30px auto;
+        width: 50%;
+        font-weight: bold;
+        font-size: large;
+     }
+     .user img {
+         border: 2px solid #000;
+         margin: 0px 15px; 
+         width: 150px;
+         height: 150px;
+     }
+
      body {
             background-color: #CCCCCC;
             color: #333333;
@@ -14,6 +31,7 @@
         #header, #footer {
             background-color: #F5F5F5;
             color: #C41200;
+            clear: both;
         }
 
         #daurius {
