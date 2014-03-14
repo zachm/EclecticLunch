@@ -1,6 +1,9 @@
 venv/
 oauth.yaml
 
+# SQLite db for devel
+development.db
+
 *.py[cod]
 *.swp
 

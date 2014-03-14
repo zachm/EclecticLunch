@@ -132,3 +132,5 @@ def authorized(resp):
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
+
+wire_up = wireer.wire_up

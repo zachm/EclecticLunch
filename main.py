@@ -7,9 +7,12 @@ import urllib2
 from flask import Flask
 from flask import render_template
 from flask.ext.script import Manager, Server
+import staticconf
 
 import auth
+import models
 
+db_conf = staticconf.YamlConfiguration('database.yaml')
 
 app = Flask(__name__)
 
@@ -21,13 +24,17 @@ and I hope it would come to pass
 but it lingers on and on
 """
 
+app.config['SQLALCHEMY_DATABASE_URI'] = db_conf['database_uri']
+
 manager = Manager(app)
 manager.add_command("runserver", Server(
     host='localhost',
     port=8008,
 ))
 
-auth.wireer.wire_up(app)
+auth.wire_up(app)
+
+models.wire_up(app)
 
 
 @app.route("/")
