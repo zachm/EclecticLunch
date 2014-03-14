@@ -41,11 +41,25 @@ def logged_in_user():
 
     return models.User.query.get(session['user_id'])
 
+lunch_buckets = {
+    11: [],
+    12: [],
+    13: [],
+    14: [],
+}
+
+
+lunch_matchings = {
+    11: None,
+    12: None,
+    13: None,
+    14: None,
+}
+
+
 @app.route("/")
 def ohai():
-    session['after_auth'] = "/start"
-    return redirect('/login')
-
+    return "Hello, luser!"
 
 def make_block_user(uinfo):
     return """<div class='user'>
@@ -53,6 +67,7 @@ def make_block_user(uinfo):
         <div>%s %s (%s)</div>
         </div>""" % (uinfo['photo_url'], uinfo['yelp_id'],
                    uinfo['first'], uinfo['last'], uinfo['yelp_id'])
+
 
 @app.route("/submit/<user>")
 def submit(user):
@@ -68,8 +83,8 @@ def submit(user):
     message += "Please meet at "
 
     companions = "Your companions will be selected and revealed fifteen minutes before lunch!"
+    lunch_buckets[time].append(user)
     return user + "\n" + str(time)
-
 
 
 @app.route("/start/<user>")
@@ -79,10 +94,20 @@ def start(user):
     return render_template('start.html', me_html=me_html, username=info['yelp_id'])
 
 
+@app.route("/match/<user>")
+def match(user):
+    from matcher import matcher
+    for x in lunch_buckets.keys():
+        matcher.run_matchings(x)
+    return redirect("/status/"+user) 
 
 def get_luncheon_group(username):
-    # TODO
-    return [get_person_info('jschultz'), get_person_info('pkoch'), get_person_info('ztm'), get_person_info('plucas')]
+    for lunch_group in lunch_matchings.values():
+        print lunch_group
+        if username in lunch_group.get_lunchers():
+            print "success!"
+            return lunch_group.get_lunchers()
+
 
 def get_user_reservation(username):
     return datetime.datetime.now()
