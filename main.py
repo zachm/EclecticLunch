@@ -58,8 +58,28 @@ def ohai():
 
 def logged_in_user():
     assert 'user_id' in session, 'Not logged in.'
-
     return models.User.query.get(session['user_id'])
+
+
+lunch_buckets = {
+    11: [],
+    12: [],
+    13: [],
+    14: [],
+}
+
+
+lunch_matchings = {
+    11: None,
+    12: None,
+    13: None,
+    14: None,
+}
+
+
+@app.route("/")
+def ohai():
+    return "Hello, luser!"
 
 @app.route("/")
 def ohai():
