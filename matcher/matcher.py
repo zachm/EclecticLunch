@@ -35,6 +35,9 @@ class LunchGroup(object):
     def current_num_lunchers(self):
         return len(self._lunchers)
 
+    def distance_to_luncher(self, luncher):
+        return sum([luncher_distance(l, luncher) for l in self._lunchers])
+
 
 def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
@@ -61,6 +64,16 @@ def _calc_lunch_group_sizes(num_lunchers):
 
     groups[0] += 1
     return groups
+
+
+def luncher_distance(l1, l2):
+    """Calculates the distance between two lunchers.
+
+    The distance is determined by how many times the two lunchers have lunched
+    in the past, and the distance between their desks.
+    """
+    return get_number_of_shared_lunches(l1, l2) * 10000 + \
+        get_desk_distance(l1, l2)
 
 
 def make_lunch(lunchers):
