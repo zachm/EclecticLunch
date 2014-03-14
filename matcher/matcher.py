@@ -60,6 +60,9 @@ class LunchGroup(object):
     def distance_to_luncher(self, luncher):
         return sum([luncher_distance(l, luncher) for l in self._lunchers])
 
+    def get_lunchers(self):
+        return [luncher for luncher in self._lunchers]
+
 
 def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
