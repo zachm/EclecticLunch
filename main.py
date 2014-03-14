@@ -6,12 +6,13 @@ import urllib2
 
 from flask import Flask
 from flask import render_template
-from flask import request
+from flask import request, redirect, session
 from flask.ext.script import Manager, Server
 import staticconf
 
 import auth
 import models
+from lukas import get_person_info
 
 db_conf = staticconf.YamlConfiguration('database.yaml')
 
@@ -38,25 +39,15 @@ auth.wire_up(app)
 models.wire_up(app)
 
 
+def logged_in_user():
+    assert 'user_id' in session, 'Not logged in.'
+
+    return models.User.query.get(session['user_id'])
+
 @app.route("/")
 def ohai():
-    return "Hello, luser!"
-
-
-def get_person_info(username):
-    """ Given a username, get the URL, etc. for them.
-
-        Keys returned: team, photo_url, yelp_id, first, last
-    """
-    request_url = "http://lukas.dev.yelp.com:7777/yelployees?yelp_id="
-    req = urllib2.urlopen(request_url + username)
-    resp = json.loads(req.read())[0]
-    if len(resp['photo_urls']) == 0:
-        resp['photo_url'] = 'http://wwcfdc.com/new/wp-content/uploads/2012/07/facebook-no-image11.gif'
-    else:
-        resp['photo_url'] = resp['photo_urls'][0]
-    del resp['photo_urls']
-    return resp
+    session['after_auth'] = "/start"
+    return redirect('/login')
 
 
 def make_block_user(uinfo):

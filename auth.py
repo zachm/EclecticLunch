@@ -1,3 +1,4 @@
+import json
 from urllib2 import Request, urlopen, URLError
 from urlparse import urlparse, urljoin
 
@@ -5,6 +6,8 @@ from flask import request, redirect, url_for, session
 from flask_oauth import OAuth
 import staticconf
 
+import models
+from lukas import get_person_info
 from wireer import Wireer
 
 
@@ -40,16 +43,10 @@ google = oauth.remote_app(
 wireer = Wireer()
 
 
-@wireer.route('/debug/auth')
-def index():
-    access_token, __ = session.get('access_token', (None, None,))
-    if access_token is None:
-        return """
-            You're logged out. <a href="{login_url}">Login</a>
-        """.format(
-            login_url=url_for('login'),
-        )
+class InvalidLogin(Exception):
+    pass
 
+def get_curent_user_info(access_token):
     try:
         res = urlopen(
             Request(
@@ -61,15 +58,30 @@ def index():
             ),
         )
     except URLError as e:
-        if e.code == 401:
-            # Unauthorized - bad token
+        raise InvalidLogin(res.read())
+
+    return json.loads(res.read())
+
+@wireer.route('/debug/auth')
+def index():
+    access_token, __ = session.get('access_token', (None, None,))
+    if access_token is None:
+        return """
+            You're logged out. <a href="{login_url}">Login</a>
+        """.format(
+            login_url=url_for('login'),
+        )
+
+    try:
+        info = get_curent_user_info(access_token)
+    except URLError as e:
             return """
                 Your login seems borked. <a href="{login_url}">Login</a><br/>
                 <br/>
                 Result:'''<pre>{result}</pre>'''
             """.format(
                 login_url=url_for('login'),
-                result=res.read(),
+                result=str(e)
             )
 
     return """
@@ -78,7 +90,7 @@ def index():
         Result:'''<pre>{result}</pre>'''
     """.format(
         logout_url=url_for('logout'),
-        result=res.read(),
+        result=repr(info)
     )
 
 
@@ -112,7 +124,7 @@ def login():
 
 @wireer.route('/logout')
 def logout():
-    session.pop('access_token')
+    session.pop('access_token', None)
 
     return_url = get_redirect_target()
     if return_url:
@@ -121,12 +133,40 @@ def logout():
     return redirect(url_for('index'))
 
 
+def get_or_create_user_by_nick(google_dict):
+    email = google_dict['email']
+
+    user = models.User.query.filter_by(email=email).first()
+    if user:
+        return user
+
+    nick = email.split('@')[0]
+    lukas_dict = get_person_info(nick)
+
+    user = models.User(
+        username=nick,
+        full_name=u' '.join([
+            lukas_dict['first'],
+            lukas_dict['last'],
+        ]),
+        pic_url=lukas_dict['photo_url'],
+    )
+    models.db.session.add(user)
+    models.db.commit()
+
+    return user
+
+
 @wireer.route(REDIRECT_URI)
 @google.authorized_handler
 def authorized(resp):
     session['access_token'] = resp['access_token'], ''
 
-    return redirect(session.pop('after_auth') or url_for('index'))
+    session['user_id'] = get_or_create_user_by_nick(
+        get_curent_user_info(resp['access_token']),
+    ).id
+
+    return redirect(session.pop('after_auth', None) or url_for('index'))
 
 
 @google.tokengetter
