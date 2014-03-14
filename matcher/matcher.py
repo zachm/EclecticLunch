@@ -43,11 +43,11 @@ def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
     people looking for lunch and the `DESIRED_GROUP_SIZE`.
     """
-    full_groups = num_lunchers / DESIRED_GROUP_SIZE
-    remainder = num_lunchers % DESIRED_GROUP_SIZE
-
     if num_lunchers in num_lunchers_to_group_sizes:
         return num_lunchers_to_group_sizes[num_lunchers]
+
+    full_groups = num_lunchers / DESIRED_GROUP_SIZE
+    remainder = num_lunchers % DESIRED_GROUP_SIZE
 
     groups  = [DESIRED_GROUP_SIZE] * full_groups
 
