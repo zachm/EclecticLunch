@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import random
 
 DESIRED_GROUP_SIZE = 4
 
@@ -72,6 +72,7 @@ def luncher_distance(l1, l2):
     The distance is determined by how many times the two lunchers have lunched
     in the past, and the distance between their desks.
     """
+    return random.random(1000)
     return get_number_of_shared_lunches(l1, l2) * 10000 + \
         get_desk_distance(l1, l2)
 
