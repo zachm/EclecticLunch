@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from copy import copy
 import email
 import email.mime.text
 import random
@@ -119,7 +120,7 @@ def make_lunch(lunchers):
     ]
 
     # let's do a simple greedy matching
-    remaining_groups = lunch_groups.copy()
+    remaining_groups = copy(lunch_groups)
     for luncher in lunchers:
         # filter out full groups
         remaining_groups = [group for group in remaining_groups
