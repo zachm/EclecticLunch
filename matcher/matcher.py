@@ -4,7 +4,7 @@
 DESIRED_GROUP_SIZE = 4
 
 
-num_users_to_group_sizes = {
+num_lunchers_to_group_sizes = {
     2: (2),
     3: (3),
     5: (3, 2),
@@ -15,15 +15,15 @@ num_users_to_group_sizes = {
 }
 
 
-def _calc_lunch_group_sizes(num_users):
+def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
     people looking for lunch and the `DESIRED_GROUP_SIZE`.
     """
-    full_groups = num_users / DESIRED_GROUP_SIZE
-    remainder = num_users % DESIRED_GROUP_SIZE
+    full_groups = num_lunchers / DESIRED_GROUP_SIZE
+    remainder = num_lunchers % DESIRED_GROUP_SIZE
 
-    if num_users in num_users_to_group_sizes:
-        return num_users_to_group_sizes[num_users]
+    if num_lunchers in num_lunchers_to_group_sizes:
+        return num_lunchers_to_group_sizes[num_lunchers]
 
     groups  = [DESIRED_GROUP_SIZE] * full_groups
 
@@ -41,7 +41,7 @@ def _calc_lunch_group_sizes(num_users):
     return groups
 
 
-def make_lunch(users):
+def make_lunch(lunchers):
     """Takes a list of user objects and attempts to assign them to lunch groups
     of approximately `DESIRED_GROUP_SIZE`.
 
@@ -52,13 +52,13 @@ def make_lunch(users):
     have lunch together.
     """
     # determine number of groups
-    num_lunchers = len(users)
-    groups = _calc_lunch_group_sizes(num_lunchers)
+    num_lunchers = len(lunchers)
+    lunch_group_sizes = _calc_lunch_group_sizes(num_lunchers)
 
 
     # do matching
 
 
 def deliver_lunch(lunch_group):
-    """Takes a group of users and emails them that lunch is ready!"""
+    """Takes a group of lunchers and emails them that lunch is ready!"""
     pass
