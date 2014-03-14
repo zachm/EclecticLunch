@@ -89,9 +89,22 @@ def make_lunch(lunchers):
     # determine number of groups
     num_lunchers = len(lunchers)
     lunch_group_sizes = _calc_lunch_group_sizes(num_lunchers)
+    lunch_groups = [LunchGroup(size) for size in lunch_group_sizes]
 
+    # let's do a simple greedy matching
+    remaining_groups = lunch_groups.copy()
+    for luncher in lunchers:
+        # filter out full groups
+        remaining_groups = [group for group in remaining_groups
+            if group.current_num_lunchers < group.desired_size
+        ]
+        best_fit = min(
+            remaining_groups,
+            key=lambda x: x.distance_to_luncher(luncher)
+        )
+        best_fit.add_luncher(luncher)
 
-    # do matching
+    return lunch_groups
 
 
 def deliver_lunch(lunch_group):
