@@ -1,7 +1,16 @@
 from flask import Flask
 import argparse
 
+
 app = Flask(__name__)
+
+app.secret_key = """
+Need to see the doctor
+but I don't got the cash
+Got a pain in my chest
+and I hope it would come to pass
+but it lingers on and on
+"""
 
 
 @app.route("/")
