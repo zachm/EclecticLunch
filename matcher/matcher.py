@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
+import email
+import email.mime.text
 import random
+import smtplib
+
+from main import get_person_info
+
 
 DESIRED_GROUP_SIZE = 4
 
@@ -13,6 +19,22 @@ num_lunchers_to_group_sizes = {
     9: (3, 3, 3),
     10: (5, 5),
 }
+
+
+MESSAGE_BODY_FORM = """Hey luncher!
+
+You've got an Electic Lunch group!
+
+The members of your group are:
+{lunchers}
+
+
+Meet in the lobby @ {time}.
+
+Enjoy!"""
+
+
+EMAIL_MESSAGE_SUBJECT = "You've got an Eclectic Lunch Group!"
 
 
 class TooManyLunchersInGroupException(Exception):
