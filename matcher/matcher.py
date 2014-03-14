@@ -52,7 +52,8 @@ def _calc_lunch_group_sizes(num_lunchers):
         return groups
 
     if remainder == 3:
-        return groups.append(3)
+        groups.append(3)
+        return groups
 
     # if remainder is 1 or 2, sprinkle on the first two groups
     if remainder == 2:
