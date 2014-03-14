@@ -1,0 +1,59 @@
+
+     body {
+            background-color: #CCCCCC;
+            color: #333333;
+            font-family: Helvetica, sans-serif;
+            width: 75%;
+            margin: 30px auto;
+            }
+        #header, #content, #footer {
+            padding: 10px;
+            margin: 10px;
+        }
+
+        #header, #footer {
+            background-color: #F5F5F5;
+            color: #C41200;
+        }
+
+        #daurius {
+            width: 300px;
+            height: 220px;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+        }
+        #daurius img {
+            width: 300px;
+            opacity: .85;
+        }
+
+        a:link { color: #3B65A7 }
+
+        input { border-top-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                vertical-align: middle;
+                background: #FDF5D6;
+                color: #333333;
+                outline: none;
+                height: 25px;
+        }
+        label { width: 200px;
+                height: 25px;
+                display: block;
+                vertical-align: middle;
+                float: left;
+                clear: left;
+        }
+        #submit {
+            height: 50px;
+            width: 150px;
+            font-size: large;
+            font-weight: bold;
+        }
+        .note { font-style: italic; }
+
+        .title_class_bg { padding: 20px; margin: 0px; background-color: #333333; }
+        .success { color: #007F82; }
+        .process { color: #FFCC00; }
+        .failure { color: #C41200; }

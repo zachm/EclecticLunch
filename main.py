@@ -1,4 +1,6 @@
 from flask import Flask
+from flask import request
+from flask import render_template
 import argparse
 
 
@@ -16,6 +18,12 @@ but it lingers on and on
 @app.route("/")
 def ohai():
     return "Hello, luser!"
+
+@app.route("/status")
+def status():
+    return render_template("status.html")
+
+
 
 
 if __name__ == "__main__":
