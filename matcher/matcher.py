@@ -1,18 +1,43 @@
 # -*- coding: utf-8 -*-
+from copy import copy
+import email
+import email.mime.text
 import random
+import smtplib
+
+from main import get_person_info
+
 
 DESIRED_GROUP_SIZE = 4
 
 
 num_lunchers_to_group_sizes = {
-    2: (2),
-    3: (3),
-    5: (3, 2),
-    6: (3, 3),
-    7: (4, 3),
-    9: (3, 3, 3),
-    10: (5, 5),
+    0: [],
+    1: [1],
+    2: [2],
+    3: [3],
+    5: [3, 2],
+    6: [3, 3],
+    7: [4, 3],
+    9: [3, 3, 3],
+    10: [5, 5],
 }
+
+
+MESSAGE_BODY_FORM = """Hey luncher!
+
+You've got an Electic Lunch group!
+
+The members of your group are:
+{lunchers}
+
+
+Meet in the lobby @ {time}.
+
+Enjoy!"""
+
+
+EMAIL_MESSAGE_SUBJECT = "You've got an Eclectic Lunch Group!"
 
 
 class TooManyLunchersInGroupException(Exception):
@@ -37,6 +62,12 @@ class LunchGroup(object):
 
     def distance_to_luncher(self, luncher):
         return sum([luncher_distance(l, luncher) for l in self._lunchers])
+
+    def get_lunchers(self):
+        return [luncher for luncher in self._lunchers]
+
+    def __repr__(self):
+        return '{0} {1}'.format(self.desired_size, self._lunchers)
 
 
 def _calc_lunch_group_sizes(num_lunchers):
@@ -72,7 +103,7 @@ def luncher_distance(l1, l2):
     The distance is determined by how many times the two lunchers have lunched
     in the past, and the distance between their desks.
     """
-    return random.random(1000)
+    return random.randint(0, 1000)
     return get_number_of_shared_lunches(l1, l2) * 10000 + \
         get_desk_distance(l1, l2)
 
@@ -84,16 +115,15 @@ def make_lunch(lunchers):
     The groups are created by minimizing the number of people in each group who
     have had lunch together before and maximizing the desk location distance.
 
-    Returns a list of lists, where each sublist is a group of people who should
-    have lunch together.
+    Returns a list of LunchGroups.
     """
     # determine number of groups
-    num_lunchers = len(lunchers)
-    lunch_group_sizes = _calc_lunch_group_sizes(num_lunchers)
-    lunch_groups = [LunchGroup(size) for size in lunch_group_sizes]
+    lunch_groups = [LunchGroup(size)
+        for size in _calc_lunch_group_sizes(len(lunchers))
+    ]
 
     # let's do a simple greedy matching
-    remaining_groups = lunch_groups.copy()
+    remaining_groups = copy(lunch_groups)
     for luncher in lunchers:
         # filter out full groups
         remaining_groups = [group for group in remaining_groups
@@ -108,6 +138,37 @@ def make_lunch(lunchers):
     return lunch_groups
 
 
-def deliver_lunch(lunch_group):
+def deliver_lunch(lunch_group, time):
     """Takes a group of lunchers and emails them that lunch is ready!"""
-    pass
+
+    # get luncher usernames
+    lunchers = [get_person_info(l) for l in lunch_group.get_lunchers()]
+
+
+    message_body = MESSAGE_BODY_FORM.format(
+        lunchers='\n'.join(
+            ['\t* {first} {last} ({yelp_id})'.format(
+                    first=l['first'],
+                    last=l['last'],
+                    yelp_id=l['yelp_id'],
+                )
+                for l in lunchers
+            ]
+        ),
+        time=time,
+    )
+
+    message = email.mime.text.MIMEText(message_body)
+    message['Subject'] = EMAIL_MESSAGE_SUBJECT
+    message['To'] = ', '.join([
+        '{0}@yelp.com'.format(l['yelp_id']) for l in lunchers
+    ])
+    message['From'] = 'EclecticLunch-noreply@yelpcorp.com'
+
+    conn = smtplib.SMTP('localhost', 25)
+    conn.sendmail(
+        message['From'],
+        message['To'].split(','),
+        message.as_string(),
+    )
+    conn.quit()
