@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-import argparse
 import datetime
-import json
-import urllib2
 
 from flask import Flask
 from flask import render_template
@@ -64,12 +61,12 @@ def submit(user):
     time = int(request.args.getlist("time")[0])
     if time not in [11,12,13,14]:
         return "Valid times are 11,12,13,14!"
-    
+
     uinfo = get_person_info(user)
     # TODO add user, etc. here
     message = "You've been booked for a lunch with new friends!<br/>"
     message += "Please meet at "
-    
+
     companions = "Your companions will be selected and revealed fifteen minutes before lunch!"
     return user + "\n" + str(time)
 
