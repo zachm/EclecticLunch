@@ -7,3 +7,4 @@ argparse
 mock
 PyStaticConfiguration
 pyyaml
+Flask-Script

@@ -6,6 +6,7 @@ import urllib2
 
 from flask import Flask
 from flask import render_template
+from flask.ext.script import Manager, Server
 
 import auth
 
@@ -19,6 +20,12 @@ Got a pain in my chest
 and I hope it would come to pass
 but it lingers on and on
 """
+
+manager = Manager(app)
+manager.add_command("runserver", Server(
+    host='localhost',
+    port=8008,
+))
 
 auth.wireer.wire_up(app)
 
@@ -70,11 +77,4 @@ def status(user):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default='localhost')
-    parser.add_argument("--port", "-p", type=int, default=8008)
-    parser.add_argument("--no-debug", "-d", default=False, action='store_true')
-    options = parser.parse_args()
-
-    debug = not options.no_debug
-    app.run(host=options.host, port=options.port, debug=debug)
+    manager.run()
