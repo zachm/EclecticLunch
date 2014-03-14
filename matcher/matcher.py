@@ -15,6 +15,27 @@ num_lunchers_to_group_sizes = {
 }
 
 
+class TooManyLunchersInGroupException(Exception):
+    pass
+
+
+class LunchGroup(object):
+
+    def __init__(self, desired_size):
+        self.desired_size = desired_size
+        self._lunchers = []
+
+    def add_luncher(self, luncher):
+        if self.current_num_lunchers < self.desired_size:
+            self._lunchers.append(luncher)
+        else:
+            raise TooManyLunchersInGroupException()
+
+    @property
+    def current_num_lunchers(self):
+        return len(self._lunchers)
+
+
 def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
     people looking for lunch and the `DESIRED_GROUP_SIZE`.
