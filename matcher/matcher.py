@@ -109,8 +109,7 @@ def make_lunch(lunchers):
     The groups are created by minimizing the number of people in each group who
     have had lunch together before and maximizing the desk location distance.
 
-    Returns a list of lists, where each sublist is a group of people who should
-    have lunch together.
+    Returns a list of LunchGroups.
     """
     # determine number of groups
     num_lunchers = len(lunchers)
