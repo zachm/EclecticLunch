@@ -166,5 +166,9 @@ def deliver_lunch(lunch_group, time):
     message['From'] = 'EclecticLunch-noreply@yelpcorp.com'
 
     conn = smtplib.SMTP('localhost', 25)
-    conn.sendmail(message['From'], message['To'], message.as_string())
+    conn.sendmail(
+        message['From'],
+        message['To'].split(','),
+        message.as_string(),
+    )
     conn.quit()
