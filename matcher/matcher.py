@@ -6,6 +6,8 @@ import random
 import smtplib
 
 from main import get_person_info
+from main import lunch_buckets
+from main import lunch_matchings
 
 
 DESIRED_GROUP_SIZE = 4
@@ -108,6 +110,10 @@ def luncher_distance(l1, l2):
         get_desk_distance(l1, l2)
 
 
+def run_matchings(time):
+    lunch_matchings[time] = make_lunch(lunch_buckets[time])
+
+
 def make_lunch(lunchers):
     """Takes a list of user objects and attempts to assign them to lunch groups
     of approximately `DESIRED_GROUP_SIZE`.
@@ -138,7 +144,7 @@ def make_lunch(lunchers):
     return lunch_groups
 
 
-def deliver_lunch(lunch_group, time):
+def deliver_lunch(lunch_group, time, dry_run=True):
     """Takes a group of lunchers and emails them that lunch is ready!"""
 
     # get luncher usernames
@@ -165,10 +171,13 @@ def deliver_lunch(lunch_group, time):
     ])
     message['From'] = 'EclecticLunch-noreply@yelpcorp.com'
 
-    conn = smtplib.SMTP('localhost', 25)
-    conn.sendmail(
-        message['From'],
-        message['To'].split(','),
-        message.as_string(),
-    )
-    conn.quit()
+    if dry_run:
+        return message.as_string()
+    else:
+        conn = smtplib.SMTP('localhost', 25)
+        conn.sendmail(
+            message['From'],
+            message['To'].split(','),
+            message.as_string(),
+        )
+        conn.quit()
