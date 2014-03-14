@@ -66,6 +66,9 @@ class LunchGroup(object):
     def get_lunchers(self):
         return [luncher for luncher in self._lunchers]
 
+    def __repr__(self):
+        return '{0} {1}'.format(self.desired_size, self._lunchers)
+
 
 def _calc_lunch_group_sizes(num_lunchers):
     """Calculates the number of different lunch groups based on the number of
