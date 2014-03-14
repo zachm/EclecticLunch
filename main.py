@@ -1,10 +1,11 @@
-from flask import Flask
-from flask import request
-from flask import render_template
+#!/usr/bin/env python
 import argparse
 import datetime
 import json
 import urllib2
+
+from flask import Flask
+from flask import render_template
 
 import auth
 
@@ -28,8 +29,8 @@ def ohai():
 
 
 def get_person_info(username):
-    """ Given a username, get the URL, etc. for them. 
-    
+    """ Given a username, get the URL, etc. for them.
+
         Keys returned: team, photo_url, yelp_id, first, last
     """
     request_url = "http://lukas.dev.yelp.com:7777/yelployees?yelp_id="
@@ -43,7 +44,7 @@ def get_person_info(username):
 @app.route("/status/<user>")
 def status(user):
     info = get_person_info(user)
-    title = "%s is  Down to Lunch!" % info['first']
+    #title = "%s is  Down to Lunch!" % info['first']
 
     name_str="%s %s (%s)" % (info['first'], info['last'], user),
     approved = True
