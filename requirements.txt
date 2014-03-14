@@ -4,3 +4,6 @@ flask_oauth
 Flask-WTF==0.8.4
 ipdb==0.8
 argparse
+mock
+PyStaticConfiguration
+pyyaml

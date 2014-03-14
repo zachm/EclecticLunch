@@ -1,4 +1,5 @@
 venv/
+oauth.yaml
 
 *.py[cod]
 *.swp

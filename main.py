@@ -6,6 +6,9 @@ import datetime
 import json
 import urllib2
 
+import auth
+
+
 app = Flask(__name__)
 
 app.secret_key = """
@@ -15,6 +18,8 @@ Got a pain in my chest
 and I hope it would come to pass
 but it lingers on and on
 """
+
+auth.wireer.wire_up(app)
 
 
 @app.route("/")
@@ -63,11 +68,9 @@ def status(user):
                             )
 
 
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default='0.0.0.0')
+    parser.add_argument("--host", type=str, default='localhost')
     parser.add_argument("--port", "-p", type=int, default=8008)
     parser.add_argument("--no-debug", "-d", default=False, action='store_true')
     options = parser.parse_args()
