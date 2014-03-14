@@ -133,6 +133,28 @@ def make_lunch(lunchers):
     return lunch_groups
 
 
-def deliver_lunch(lunch_group):
+def deliver_lunch(lunch_group, time):
     """Takes a group of lunchers and emails them that lunch is ready!"""
-    pass
+
+    # get luncher usernames
+    lunchers = [get_person_info(l) for l in lunch_group.get_lunchers()]
+
+
+    message_body = MESSAGE_BODY_FORM.format(
+        {
+            'lunchers': '\n'.join(
+                ['\t* {first} {last} ({yelp_id})'.format(l) for l in lunchers]
+            ),
+            'time': time,
+        }
+    )
+
+    message = email.mime.text.MIMEText(message_body)
+    message['Subject'] = EMAIL_MESSAGE_SUBJECT
+    message['To'] = ','.join(['{yelp_id}@yelp.com'.format(l) for l in lunchers])
+    message['From'] = "who_knows@example.com"
+    message['Reply-To'] = 'THIS_IS_MADNESS@leonidas.net'
+
+    conn = smtplib.SMTP('localhost', 25)
+    conn.sendmail(message['From'], message['To'], message.as_string())
+    conn.quit()
