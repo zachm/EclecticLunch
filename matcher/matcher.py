@@ -5,10 +5,6 @@ import email.mime.text
 import random
 import smtplib
 
-from main import get_person_info
-from main import lunch_buckets
-from main import lunch_matchings
-
 
 DESIRED_GROUP_SIZE = 4
 
@@ -125,7 +121,7 @@ def make_lunch(lunchers):
     """
     # determine number of groups
     lunch_groups = [LunchGroup(size)
-        for size in _calc_lunch_group_sizes(len(lunchers))
+        for size in _calc_lunch_group_sizes(len(list(lunchers)))
     ]
 
     # let's do a simple greedy matching

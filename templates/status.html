@@ -5,10 +5,10 @@
     <h2>Woop woop!</h2>
     {{ message }}
     <br/><br/>
-    {% autoescape false %}
-        {{ us_html }}
-    {% endautoescape %}
     {{ companions }}
+    {% autoescape false %}
+    {{ us_html }}
+    {% endautoescape %}
 
 </div>
 {% endblock %}

@@ -133,8 +133,9 @@ def logout():
     return redirect(url_for('index'))
 
 
-def get_or_create_user_by_nick(google_dict):
-    email = google_dict['email']
+def get_or_create_user_by_nick(email):
+    if not email.endswith('@yelp.com'):
+        email += '@yelp.com'
 
     user = models.User.query.filter_by(email=email).first()
     if user is not None:
@@ -164,11 +165,11 @@ def authorized(resp):
     session['access_token'] = resp['access_token'], ''
 
     user = get_or_create_user_by_nick(
-        get_curent_user_info___(resp['access_token']),
-    ).id
+        get_curent_user_info___(resp['access_token'])['email'],
+    )
     session['user_id'] = user.id
 
-    return redirect(session.pop('after_auth', None) or '/start/'+user['nick'])
+    return redirect(session.pop('after_auth', None) or '/start/'+user.username)
 
 
 @google.tokengetter

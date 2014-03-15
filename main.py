@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-import datetime
+from datetime import datetime, date
 
 from flask import Flask
 from flask import render_template
-from flask import request, redirect, session
+from flask import request, redirect, session, url_for
 from flask.ext.script import Manager, Server
 import staticconf
 
@@ -41,32 +41,29 @@ def logged_in_user():
 
     return models.User.query.get(session['user_id'])
 
-lunch_buckets = {
-    11: [],
-    12: [],
-    13: [],
-    14: [],
-}
-
-
-lunch_matchings = {
-    11: None,
-    12: None,
-    13: None,
-    14: None,
-}
-
 
 @app.route("/")
 def ohai():
-    return "Hello, luser!"
+    return redirect('/login')
 
 def make_block_user(uinfo):
     return """<div class='user'>
         <div style='float:left'><img src='%s' alt='%s' /></div>
-        <div>%s %s (%s)</div>
-        </div>""" % (uinfo['photo_url'], uinfo['yelp_id'],
-                   uinfo['first'], uinfo['last'], uinfo['yelp_id'])
+        <div>%s (%s)</div>
+        </div>""" % (uinfo.pic_url, uinfo.username,
+                   uinfo.full_name, uinfo.username)
+
+
+def get_or_create(klass, **kwargs):
+    obj = klass.query.filter_by(**kwargs).first()
+    if obj is not None:
+        return obj
+
+    obj = klass(**kwargs)
+    models.db.session.add(obj)
+    models.db.session.commit()
+
+    return obj
 
 
 @app.route("/submit/<user>")
@@ -77,68 +74,119 @@ def submit(user):
     if time not in [11,12,13,14]:
         return "Valid times are 11,12,13,14!"
 
-    uinfo = get_person_info(user)
-    # TODO add user, etc. here
-    message = "You've been booked for a lunch with new friends!<br/>"
-    message += "Please meet at "
+    lunch_time = models.LunchTime.query.filter_by(starting_hour=time).first()
 
-    companions = "Your companions will be selected and revealed fifteen minutes before lunch!"
-    lunch_buckets[time].append(user)
-    return user + "\n" + str(time)
+    uinfo = logged_in_user()
+    if uinfo is None:
+        return redirect('/login')
+
+    # TODO add user, etc. here
+    get_or_create(
+        models.LuncherSignup,
+        lunch=get_or_create(
+            models.Lunch,
+            lunch_time=lunch_time,
+            happening_datetime=date.today(),
+        ),
+        user=uinfo,
+    )
+    return render_template(
+        'submit.html',
+        status_url=url_for('status', user=uinfo.username),
+    )
 
 
 @app.route("/start/<user>")
 def start(user):
-    info = get_person_info(user)
+    info = logged_in_user()
+    if info is None:
+        return redirect('/login')
     me_html = make_block_user(info)
-    return render_template('start.html', me_html=me_html, username=info['yelp_id'])
+    return render_template('start.html', me_html=me_html, username=info.username)
 
 
 @app.route("/match/<user>")
 def match(user):
+    info = logged_in_user()
+    if info is None:
+        return redirect('/login')
     from matcher import matcher
-    for x in lunch_buckets.keys():
-        matcher.run_matchings(x)
-    return redirect("/status/"+user) 
+    for lunch in models.Lunch.query.all():
+        groups = matcher.make_lunch(
+            user.username
+            for user in lunch.signed_up_users.all()
+        )
+        for group in groups:
+            lg = get_or_create(
+                models.LunchGroup,
+            )
+            for user in group.get_lunchers():
+                get_or_create(
+                    models.LunchGroupParticipation,
+                    lunch_group=lg,
+                    user=models.User.query.filter_by(username=user).first(),
+                )
+    return redirect("/status/"+user)
 
-def get_luncheon_group(username):
-    for lunch_group in lunch_matchings.values():
-        print lunch_group
-        if username in lunch_group.get_lunchers():
-            print "success!"
-            return lunch_group.get_lunchers()
+def get_luncheon_group(user):
+    if user.username == 'pkoch':
+        return [
+            auth.get_or_create_user_by_nick('plucas'),
+            auth.get_or_create_user_by_nick('bstack'),
+            auth.get_or_create_user_by_nick('dmitriy'),
+        ]
+
+    lgp = models.LunchGroupParticipation.query.filter_by(user=user).first()
+    if lgp is None:
+        return None
+
+    return lgp.lunch_group.participants.all()
 
 
 def get_user_reservation(username):
-    return datetime.datetime.now()
+    return datetime.now()
 
 
 @app.route("/status/<user>")
 def status(user):
-    info = get_person_info(user)
-    #title = "%s is  Down to Lunch!" % info['first']
+    user = logged_in_user()
+    if user is None:
+        return redirect('/login')
 
-    name_str="%s %s (%s)" % (info['first'], info['last'], user),
-    approved = True
-    matched = True
+    name_str="%s (%s)" % (user.full_name, user),
+
+
+    signups = models.LuncherSignup.query.filter_by(
+        user=user,
+    )
     message = ""
-    if approved:
-        dt = get_user_reservation(user)
-        message += "%s has been booked for a lunch with new friends, %s at %s. " % (info['first'],
-                    dt.strftime("%A"), dt.strftime("%I:%m %p"))
+
+    if signups:
+        signup = signups[0]
+        message += "%s has been booked for a lunch with new friends, %s at %s. " % (
+            user.full_name,
+            signup.lunch.happening_datetime.strftime("%A"),
+            signup.lunch.happening_datetime.strftime("%I:%m %p"),
+        )
         message += "Please meet five minutes before this time in the Yelp lobby. "
     else:
-        message += "We don't have any reservations scheduled for %s yet!" % info['first']
+        message += "We don't have any reservations scheduled for %s yet!" % (user.full_name,)
 
-    if not matched:
+    lgp = get_luncheon_group(user)
+    if lgp is None:
         companions = "Your companions will be selected and revealed fifteen minutes before lunch!"
+        us_html=""
     else:
         companions = "Here are your friends!"
+        us_html=" ".join([make_block_user(x) for x in lgp])
 
-    return render_template("status.html",
-                           message=message, companions=companions, name_str=name_str,
-                           us_html=" ".join([make_block_user(x) for x in get_luncheon_group(user)])
-                            )
+    return render_template(
+        "status.html",
+        message=message,
+        companions=companions,
+        name_str=name_str,
+        us_html=us_html
+    )
 
 
 if __name__ == "__main__":
